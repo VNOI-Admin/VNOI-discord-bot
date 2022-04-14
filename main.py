@@ -24,7 +24,7 @@ class VNOIBot(commands.Bot):
             self.is_running = True
             await self.load_slash_commands("slash_commands.ask")
 
-        await self._connection._command_tree.sync(guild = discord.Object(id = 701626107417460766))    
+        await self._connection._command_tree.sync(guild = discord.Object(id = config.guild_id))    
 
         print('Ready')
         print('Connected guilds:')
