@@ -1,2 +1,4 @@
-python-dotenv
 git+https://github.com/Rapptz/discord.py
+peewee
+aiohttp
+bs4
