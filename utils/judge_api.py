@@ -2,7 +2,7 @@ import aiohttp
 import discord
 from discord.ext import tasks
 from bs4 import BeautifulSoup
-import requests
+
 
 async def fetch(url):
     headers = {
@@ -10,7 +10,8 @@ async def fetch(url):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers = headers) as resp:
+        async with session.get(url, headers=headers) as resp:
+            if url != resp.real_url: return None
             content = await resp.text()
 
     return content
@@ -25,6 +26,8 @@ async def codeforces_fetch(id):
     soup = BeautifulSoup(content, "html.parser")
     results = soup.find(class_="title")
 
+    print(results.text)
+
     return results.text.split(". ")[1]
 
 
@@ -38,6 +41,18 @@ async def atcoder_fetch(id):
 
     return results.text.split("- ")[1].split('\n')[0]
 
+
+async def vnoj_fetch(id):
+    url = f"https://oj.vnoi.info/problem/{id}"
+
+    content = await fetch(url)
+
+    soup = BeautifulSoup(content, "html.parser")
+    results = soup.find("h2")
+
+    return results.text
+
+
 async def fetch_problem_name(judge, id):
     for c in id:
         if not (c.isdigit() or c.isalpha() or c == '_'):
@@ -48,6 +63,3 @@ async def fetch_problem_name(judge, id):
         return name
     except:
         return None
-
-
-
