@@ -11,7 +11,8 @@ async def fetch(url):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
-            if url != resp.real_url: return None
+            if str(url) != str(resp.real_url): 
+                return None
             content = await resp.text()
 
     return content
@@ -25,8 +26,6 @@ async def codeforces_fetch(id):
 
     soup = BeautifulSoup(content, "html.parser")
     results = soup.find(class_="title")
-
-    print(results.text)
 
     return results.text.split(". ")[1]
 
