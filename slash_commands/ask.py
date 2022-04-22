@@ -10,6 +10,23 @@ from databases import data_util
 PLATFORM_LIST = ['Codeforces', 'Atcoder', 'VNOJ']
 PLATFORM_LIST.sort()
 
+@app_commands.command(name = "add_topic", description = "Add a topic to ask in a channel")
+async def add_topic(interaction: discord.Interaction, topic: str, channel_mention: str):
+    await interaction.response.defer(ephemeral = False)
+
+    channel_has_topic = data_util.select_topics(topic_name = topic)
+
+    if len(channel_has_topic) > 0:
+        await interaction.followup.send(f"Already has {topic} in <#{channel_has_topic[0].channel_id}>")
+        return    
+
+    for channel in interaction.guild.channels:
+        if str(channel.mention) == channel_mention:
+            data_util.insert_topic(topic_name = topic, guild_id = interaction.guild_id, channel_id = channel.id)
+            await interaction.followup.send(f"Added {topic} for {channel.mention}")
+            return
+
+    await interaction.followup.send("Invalid Channel!")
 
 @app_commands.command(name="ask", description="Create a thread to get help on a problem")
 async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
@@ -17,7 +34,7 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
     problem_name = problem_id
 
-    await interaction.response.defer(ephemeral=True, thinking=False)
+    await interaction.response.defer(ephemeral=True)
 
     if platform in PLATFORM_LIST:
         problem_name = await judge_api.fetch_problem_name(platform.lower(), problem_id)
@@ -27,7 +44,7 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
     new_thread = await ask_channel.create_thread(name=f'{platform} - {problem_name}', type=discord.ChannelType.public_thread, auto_archive_duration=60 * 24)
 
-    data_util.insert(thread_id=new_thread.id, judge=platform,
+    data_util.insert_thread(thread_id=new_thread.id, judge=platform,
                      problem_name=problem_name, problem_id=problem_id)
     await new_thread.send(f'Your thread has been created, {interaction.user.mention}')
     await interaction.followup.send(f"Your thread has been created in {ask_channel.mention}", ephemeral=True)
@@ -75,6 +92,7 @@ async def search(interaction: discord.Interaction, query: str):
     await interaction.followup.send(embed)
 
 async def setup(bot, tree):
-    tree.add_command(ask, guild=discord.Object(id=config.guild_id))
-    tree.add_command(format, guild=discord.Object(id=config.guild_id))
-    tree.add_command(search, guild=discord.Object(id = config.guild_id))
+    tree.add_command(ask, guild = discord.Object(id = config.guild_id))
+    tree.add_command(format, guild = discord.Object(id = config.guild_id))
+    tree.add_command(search, guild = discord.Object(id = config.guild_id))
+    tree.add_command(add_topic, guild = discord.Object(id = config.guild_id))
