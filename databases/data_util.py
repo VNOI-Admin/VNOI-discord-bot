@@ -80,4 +80,11 @@ def select_topics(*, topic_name = None, guild_id = None, channel_id = None):
 def insert_guild(*, guild_id, default_channel_id):
     GuildList.create(guild_id = guild_id, default_channel_id = default_channel_id).save()
 
-def select_guide
+def select_guilds(*, guild_id = None, default_channel_id = None):
+    exp = True
+    if guild_id:
+        exp = exp & (GuildList.guild_id == guild_id)
+    if default_channel_id:
+        exp = exp & (GuildList.default_channel_id == default_channel_id)
+        
+    return GuildList.select().where(exp)

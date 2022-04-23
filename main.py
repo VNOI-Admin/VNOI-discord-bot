@@ -6,7 +6,6 @@ from discord import app_commands
 
 import config
 
-
 class VNOIBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix="?", intents=discord.Intents.all())
@@ -21,15 +20,15 @@ class VNOIBot(commands.Bot):
     async def on_ready(self):
         if not self.is_running:
             self.is_running = True
-            await self.load_slash_commands("slash_commands.ask")
-
-        await self._connection._command_tree.sync(guild=discord.Object(id=config.guild_id))
-
+            for commands in ["add_topic", "ask", "format", "search"]:
+                await self.load_slash_commands(f"slash_commands.{commands}")
+        
         print('Ready')
         print('Connected guilds:')
-        for i in self.guilds:
-            print(f"[+] {i.name}")
-
+        
+        for guild in self.guilds:
+            await self._connection._command_tree.sync(guild = discord.Object(id = guild.id))
+            print(f"[+] {guild.name}")
 
 bot = VNOIBot()
 
