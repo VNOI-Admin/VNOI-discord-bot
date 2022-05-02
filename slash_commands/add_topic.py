@@ -1,14 +1,13 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
 
 from databases import data_util
 
 @app_commands.command(name = "add_topic", description = "Add a topic to ask in a channel")
 async def add_topic(interaction: discord.Interaction, topic: str, channel_mention: str):
-    await interaction.response.defer(ephemeral = False)
+    await interaction.response.defer(ephemeral=False)
 
-    channel_has_topic = data_util.select_topics(topic_name = topic)
+    channel_has_topic = list(data_util.select_topics(topic_name=topic, guild_id=interaction.guild_id))
 
     if len(channel_has_topic) > 0:
         await interaction.followup.send(f"Already has {topic} in <#{channel_has_topic[0].channel_id}>")
@@ -24,4 +23,4 @@ async def add_topic(interaction: discord.Interaction, topic: str, channel_mentio
 
 async def setup(bot, tree):
     for guild in bot.guilds:
-        tree.add_command(add_topic, guild = discord.Object(id = guild.id))
+        tree.add_command(add_topic, guild=discord.Object(id=guild.id))

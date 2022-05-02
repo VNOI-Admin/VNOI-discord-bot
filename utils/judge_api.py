@@ -1,8 +1,5 @@
 import aiohttp
-import discord
-from discord.ext import tasks
 from bs4 import BeautifulSoup
-
 
 async def fetch(url):
     headers = {

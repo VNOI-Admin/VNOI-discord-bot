@@ -20,14 +20,14 @@ class VNOIBot(commands.Bot):
     async def on_ready(self):
         if not self.is_running:
             self.is_running = True
-            for commands in ["add_topic", "ask", "format", "search"]:
-                await self.load_slash_commands(f"slash_commands.{commands}")
-        
+            for available_slash_command in ["add_topic", "ask", "format", "search", "set_default_channel", "default_channel"]:
+                await self.load_slash_commands(f"slash_commands.{available_slash_command}")
+
         print('Ready')
         print('Connected guilds:')
-        
+
         for guild in self.guilds:
-            await self._connection._command_tree.sync(guild = discord.Object(id = guild.id))
+            await self._connection._command_tree.sync(guild=discord.Object(id=guild.id))
             print(f"[+] {guild.name}")
 
 bot = VNOIBot()

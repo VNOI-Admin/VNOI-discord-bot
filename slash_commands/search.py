@@ -1,17 +1,15 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
 
 from databases import data_util
 
-@app_commands.command(name = "search", description = "Find a similar problem")
+@app_commands.command(name="search", description="Find a similar problem")
 async def search(interaction: discord.Interaction, query: str):
     await interaction.response.defer(ephemeral=True)
 
     matched_questions = data_util.related_questions(query)
     for questions in matched_questions:
-        questions.query = query   
-        """Will be used for searching algorithm""" 
+        questions.query = query
 
     embed = ""
     for question in matched_questions:
@@ -20,4 +18,4 @@ async def search(interaction: discord.Interaction, query: str):
 
 async def setup(bot, tree):
     for guild in bot.guilds:
-        tree.add_command(search, guild = discord.Object(id = guild.id))
+        tree.add_command(search, guild=discord.Object(id=guild.id))

@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
+
 from utils import judge_api
 
 import config
@@ -12,11 +12,35 @@ PLATFORM_LIST.sort()
 
 @app_commands.command(name="ask", description="Create a thread to get help on a problem")
 async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
-    ask_channel = interaction.client.get_channel(config.ask_channel)
-
-    problem_name = problem_id
-
     await interaction.response.defer(ephemeral=True)
+
+    guild_information = list(data_util.select_guilds(guild_id=interaction.guild_id))
+    topic_information = list(data_util.select_topics(topic_name=platform, guild_id=interaction.guild_id))
+    
+    if len(topic_information) == 0:
+        if len(guild_information) == 0:
+            await interaction.followup.send("There is no default channel and no channel has this topic")
+            return
+        
+        elif len(guild_information) == 1:
+            ask_channel_id = guild_information[0].default_channel_id
+            ask_channel = interaction.guild.get_channel(ask_channel_id)
+        
+        elif len(guild_information) > 1:
+            print("Something went wrong!")
+            await interaction.followup.send("Code bugged, panic!")
+            return
+    
+    elif len(topic_information) == 1:
+        ask_channel_id = topic_information[0].channel_id
+        ask_channel = interaction.guild.get_channel(ask_channel_id)
+    
+    elif len(topic_information) > 2:
+        print("Something went wrong!")
+        await interaction.followup.send("Code bugged, panic!")
+        return
+    
+    problem_name = problem_id
 
     if platform in PLATFORM_LIST:
         problem_name = await judge_api.fetch_problem_name(platform.lower(), problem_id)
@@ -33,8 +57,13 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
 @ask.autocomplete("platform")
 async def platform_autocomplete(interaction: discord.Interaction, current: str):
-    hint = [platform for platform in PLATFORM_LIST if current.lower()
-            in platform.lower()]
+    TOPIC_LIST = data_util.select_topics()
+    hint = []
+
+    for topic in TOPIC_LIST:
+        topic_name = topic.topic_name
+        if current in topic_name:
+            hint.append(topic_name)    
 
     return [
         app_commands.Choice(name=platform, value=platform)
@@ -43,4 +72,4 @@ async def platform_autocomplete(interaction: discord.Interaction, current: str):
 
 async def setup(bot, tree):
     for guild in bot.guilds:
-        tree.add_command(ask, guild = discord.Object(id = guild.id))
+        tree.add_command(ask, guild=discord.Object(id=guild.id))
