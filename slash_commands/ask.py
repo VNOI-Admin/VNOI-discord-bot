@@ -3,8 +3,6 @@ from discord import app_commands
 
 from utils import judge_api
 
-import config
-
 from databases import data_util
 
 PLATFORM_LIST = ['Codeforces', 'Atcoder', 'VNOJ']
@@ -16,30 +14,30 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
     guild_information = list(data_util.select_guilds(guild_id=interaction.guild_id))
     topic_information = list(data_util.select_topics(topic_name=platform, guild_id=interaction.guild_id))
-    
+
     if len(topic_information) == 0:
         if len(guild_information) == 0:
             await interaction.followup.send("There is no default channel and no channel has this topic")
             return
-        
-        elif len(guild_information) == 1:
+
+        if len(guild_information) == 1:
             ask_channel_id = guild_information[0].default_channel_id
             ask_channel = interaction.guild.get_channel(ask_channel_id)
-        
-        elif len(guild_information) > 1:
+
+        if len(guild_information) > 1:
             print("Something went wrong!")
             await interaction.followup.send("Code bugged, panic!")
             return
-    
-    elif len(topic_information) == 1:
+
+    if len(topic_information) == 1:
         ask_channel_id = topic_information[0].channel_id
         ask_channel = interaction.guild.get_channel(ask_channel_id)
-    
-    elif len(topic_information) > 2:
+
+    if len(topic_information) > 2:
         print("Something went wrong!")
         await interaction.followup.send("Code bugged, panic!")
         return
-    
+
     problem_name = problem_id
 
     if platform in PLATFORM_LIST:
@@ -57,13 +55,13 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
 @ask.autocomplete("platform")
 async def platform_autocomplete(interaction: discord.Interaction, current: str):
-    TOPIC_LIST = data_util.select_topics()
+    topic_list = data_util.Topic.where()
     hint = []
 
-    for topic in TOPIC_LIST:
+    for topic in topic_list:
         topic_name = topic.topic_name
         if current in topic_name:
-            hint.append(topic_name)    
+            hint.append(topic_name)
 
     return [
         app_commands.Choice(name=platform, value=platform)

@@ -1,6 +1,7 @@
 from peewee import *
 
 db = SqliteDatabase('database.db')
+db.connect()
 
 class Question(Model):
     thread_id = IntegerField()
@@ -14,30 +15,6 @@ class Question(Model):
     class Meta:
         database = db
 
-class Topic(Model):
-    topic_name = CharField()
-    guild_id = IntegerField()
-    channel_id = IntegerField()
-
-    def value(self):
-        print(self.id, self.topic_name, self.guild_id, self.channel_id)
-
-    class Meta:
-        database = db
-
-class GuildInformation(Model):
-    guild_id = IntegerField()
-    default_channel_id = IntegerField()
-
-    def value(self):
-        print(self.id, self.guild_id, self.default_channel_id)
-
-    class Meta:
-        database = db
-
-db.connect()
-db.create_tables([GuildInformation])
-db.create_tables([Topic])
 db.create_tables([Question])
 
 def insert_thread(*, thread_id, judge, problem_name, problem_id):
@@ -68,6 +45,19 @@ def related_questions(query):
 
     return [question for question in Question.select() if match(query, question)]
 
+class Topic(Model):
+    topic_name = CharField()
+    guild_id = IntegerField()
+    channel_id = IntegerField()
+
+    def value(self):
+        print(self.id, self.topic_name, self.guild_id, self.channel_id)
+
+    class Meta:
+        database = db
+
+db.create_tables([Topic])
+
 def insert_topic(*, topic_name, guild_id, channel_id):
     Topic.create(topic_name = topic_name, guild_id = guild_id, channel_id = channel_id).save()
 
@@ -83,6 +73,23 @@ def select_topics(*, topic_name = None, guild_id = None, channel_id = None):
 
     return Topic.select().where(exp)
 
+def update_topic_information(topic_name, guild_id, channel_id):
+    updated_topic = select_topics(topic_name=topic_name, guild_id=guild_id)
+    updated_topic.default_channel_id = channel_id
+    updated_topic.save()
+
+class GuildInformation(Model):
+    guild_id = IntegerField()
+    default_channel_id = IntegerField()
+
+    def value(self):
+        print(self.id, self.guild_id, self.default_channel_id)
+
+    class Meta:
+        database = db
+
+db.create_tables([GuildInformation])
+
 def insert_guild(*, guild_id, default_channel_id):
     GuildInformation.create(guild_id = guild_id, default_channel_id = default_channel_id).save()
 
@@ -96,14 +103,14 @@ def select_guilds(*, guild_id = None, default_channel_id = None):
     return GuildInformation.select().where(exp)
 
 def update_guild_information(guild_id, channel_id):
-    updated_guild = GuildInformation.select().where(GuildInformation.guild_id == guild_id).get()
+    updated_guild = select_guilds(guild_id=guild_id)
     updated_guild.default_channel_id = channel_id
     updated_guild.save()
 
 def database_information():
-    for question in select_questions():
+    for question in Question.select():
         print(question.value())
-    for topic in select_topics():
+    for topic in Topic.select():
         print(topic.value())
-    for guild_information in select_guilds():
+    for guild_information in GuildInformation.select():
         print(guild_information.value())

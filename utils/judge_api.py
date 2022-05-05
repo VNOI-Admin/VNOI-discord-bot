@@ -8,7 +8,7 @@ async def fetch(url):
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
-            if str(url) != str(resp.real_url): 
+            if str(url) != str(resp.real_url):
                 return None
             content = await resp.text()
 

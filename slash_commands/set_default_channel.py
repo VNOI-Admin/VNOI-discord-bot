@@ -6,9 +6,9 @@ from databases import data_util
 @app_commands.command(description="Set the default channel to ask a question")
 async def set_default_channel(interaction: discord.Interaction, channel_mention: str):
     await interaction.response.defer()
-    
+
     if interaction.user.guild_permissions.administrator is False:
-        await interaction.followup.send(f"You need administrator permission to use that command!")
+        await interaction.followup.send("You need administrator permission to use that command!")
 
     guild_list = list(data_util.select_guilds(guild_id=interaction.guild_id))
     channel_id = channel_mention[2:-1]

@@ -1,5 +1,3 @@
-import os
-
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -20,7 +18,7 @@ class VNOIBot(commands.Bot):
     async def on_ready(self):
         if not self.is_running:
             self.is_running = True
-            for available_slash_command in ["add_topic", "ask", "format", "search", "set_default_channel", "default_channel"]:
+            for available_slash_command in ["ask", "format", "search", "set_default_channel", "default_channel", "topics", "move_topic"]:
                 await self.load_slash_commands(f"slash_commands.{available_slash_command}")
 
         print('Ready')

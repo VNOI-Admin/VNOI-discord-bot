@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 
-@app_commands.command(name = "format", description = "Format for question command")
+@app_commands.command(description="Format for question command")
 async def format(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True, thinking=False)
 
