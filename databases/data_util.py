@@ -74,8 +74,17 @@ def select_topics(*, topic_name = None, guild_id = None, channel_id = None):
     return Topic.select().where(exp)
 
 def update_topic_information(topic_name, guild_id, channel_id):
-    updated_topic = select_topics(topic_name=topic_name, guild_id=guild_id)
-    updated_topic.default_channel_id = channel_id
+    updated_topic_list = select_topics(topic_name=topic_name, guild_id=guild_id)
+
+    if len(updated_topic_list) > 1:
+        print("Failed")
+        return
+    if len(updated_topic_list) == 0:
+        print("Failed")
+        return
+
+    updated_topic = updated_topic_list[0]
+    updated_topic.channel_id = channel_id
     updated_topic.save()
 
 class GuildInformation(Model):
@@ -103,7 +112,16 @@ def select_guilds(*, guild_id = None, default_channel_id = None):
     return GuildInformation.select().where(exp)
 
 def update_guild_information(guild_id, channel_id):
-    updated_guild = select_guilds(guild_id=guild_id)
+    updated_guild_list = select_guilds(guild_id=guild_id)
+
+    if len(updated_guild_list) > 1:
+        print("Failed")
+        return
+    if len(updated_guild_list) == 0:
+        print("Failed")
+        return
+
+    updated_guild = updated_guild_list[0]
     updated_guild.default_channel_id = channel_id
     updated_guild.save()
 
