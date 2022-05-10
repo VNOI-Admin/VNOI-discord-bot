@@ -8,7 +8,7 @@ class Question(Model):
     judge = CharField()
     problem_name = CharField()
     problem_id = CharField()
-
+    
     def value(self):
         print(self.id, self.thread_id, self.judge, self.problem_name, self.problem_id)
 

@@ -5,7 +5,7 @@ from utils import judge_api
 
 from databases import data_util
 
-PLATFORM_LIST = ['Codeforces', 'Atcoder', 'VNOJ']
+PLATFORM_LIST = ['codeforces', 'atcoder', 'vnoj']
 PLATFORM_LIST.sort()
 
 @app_commands.command(name="ask", description="Create a thread to get help on a problem")
@@ -55,7 +55,7 @@ async def ask(interaction: discord.Interaction, platform: str, problem_id: str):
 
 @ask.autocomplete("platform")
 async def platform_autocomplete(interaction: discord.Interaction, current: str):
-    topic_list = data_util.Topic.where()
+    topic_list = data_util.select_topics(guild_id=interaction.guild_id)
     hint = []
 
     for topic in topic_list:

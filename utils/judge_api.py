@@ -1,16 +1,20 @@
 import aiohttp
+import time
 from bs4 import BeautifulSoup
+
+from selenium import webdriver
+
+from webdriver_manager.chrome import ChromeDriverManager
 
 async def fetch(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36',
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as resp:
-            if str(url) != str(resp.real_url):
-                return None
-            content = await resp.text()
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    time.sleep(5)
+    driver.get(url)
+    content = driver.page_source
 
     return content
 
